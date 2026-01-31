@@ -35,10 +35,10 @@
         .screen {
             position: absolute; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease; z-index: 10;
+            z-index: 10;
         }
 
-        .hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .hidden { display: none !important; }
 
         .btn-bts {
             background: linear-gradient(to right, var(--bts-purple), var(--bts-vibrant));
@@ -50,38 +50,30 @@
 
         .btn-bts:hover { transform: scale(1.05); }
 
-        /* Contenedor del Puzzle */
-        .puzzle-container {
-            position: relative;
+        /* Estructura del Juego */
+        .game-layout {
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+
+        .puzzle-box {
             width: 88vw; height: 88vw;
             max-width: 450px; max-height: 450px;
             border: 4px solid var(--bts-purple);
-            border-radius: 15px;
-            overflow: hidden;
+            border-radius: 15px; overflow: hidden;
             background: #201540;
         }
 
         #puzzle-board {
-            display: grid; gap: 1px;
-            width: 100%; height: 100%;
-            transition: gap 0.5s ease;
+            display: grid; gap: 1px; width: 100%; height: 100%;
+            transition: gap 0.4s ease;
         }
 
-        /* Cuando ganas, eliminamos los huecos entre piezas */
-        #puzzle-board.won { gap: 0; }
+        /* Estado Ganador: Se pegan las piezas */
+        #puzzle-board.won { gap: 0; border: none; }
 
         .piece { cursor: pointer; background-repeat: no-repeat; transition: all 0.2s; }
         .piece.selected { outline: 4px solid white; outline-offset: -4px; z-index: 20; transform: scale(0.95); }
         .piece.locked { cursor: default; }
-
-        /* Overlay de Victoria */
-        #victory-overlay {
-            position: absolute; inset: 0;
-            background: rgba(10, 5, 24, 0.6);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 50; backdrop-filter: blur(2px);
-        }
 
         /* Modal Vista Previa */
         #preview-modal {
@@ -103,6 +95,7 @@
             font-weight: bold; border: 2px solid var(--bts-purple); cursor: pointer;
         }
 
+        /* Decoración */
         .floating-emoji { position: absolute; animation: float 5s infinite ease-in-out; z-index: 5; font-size: 2rem; pointer-events: none; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
@@ -123,8 +116,8 @@
     <div id="screen-menu" class="screen">
         <div class="floating-emoji" style="top: 15%; left: 10%;">💜</div>
         <div class="floating-emoji" style="top: 10%; right: 10%;">✨</div>
-        <div class="z-20 text-center px-4">
-            <h1 class="bts-font text-5xl md:text-7xl mb-4">BTS: ARMY</h1>
+        <div class="z-20 text-center">
+            <h1 class="bts-font text-5xl mb-4">BTS: ARMY</h1>
             <div class="flex flex-col gap-4 max-w-[260px] mx-auto">
                 <button onclick="configGame(25)" class="btn-bts bts-font text-xs">Fácil (25)</button>
                 <button onclick="configGame(49)" class="btn-bts bts-font text-xs">Medio (49)</button>
@@ -134,26 +127,32 @@
     </div>
 
     <div id="screen-game" class="screen hidden">
-        <div class="mb-6 flex flex-col items-center">
-            <h2 class="bts-font text-xl text-purple-400 mb-2">Panel ARMY</h2>
-            <div class="flex items-center gap-4">
-                <div class="bg-white/5 px-6 py-2 rounded-full border border-purple-500/30">
-                    <p class="text-[10px] font-bold uppercase">Piezas: <span id="correct-count" class="text-purple-400 text-lg">0</span> / <span id="total-label">0</span></p>
-                </div>
-                <button onclick="togglePreview(true)" class="bg-purple-600 p-2.5 rounded-full shadow-lg">👁️</button>
-            </div>
-        </div>
-
-        <div class="puzzle-container">
-            <div id="puzzle-board"></div>
+        <div class="game-layout">
             
-            <div id="victory-overlay" class="hidden">
-                <h3 class="bts-font text-3xl mb-4 text-white drop-shadow-lg">¡LOGRADO! 💜</h3>
-                <button onclick="location.reload()" class="btn-bts text-[10px] py-2 px-8">Jugar de nuevo 🔄</button>
+            <div id="mission-panel" class="flex flex-col items-center">
+                <h2 class="bts-font text-xl text-purple-400 mb-2">Panel ARMY</h2>
+                <div class="flex items-center gap-4">
+                    <div class="bg-white/5 px-6 py-2 rounded-full border border-purple-500/30">
+                        <p class="text-[10px] font-bold uppercase">Piezas: <span id="correct-count" class="text-purple-400 text-lg">0</span> / <span id="total-label">0</span></p>
+                    </div>
+                    <button onclick="togglePreview(true)" class="bg-purple-600 p-2.5 rounded-full shadow-lg">👁️</button>
+                </div>
             </div>
+
+            <div id="victory-msg" class="hidden text-center">
+                <h3 class="bts-font text-3xl text-white drop-shadow-lg">¡MISIÓN CUMPLIDA! 💜</h3>
+            </div>
+
+            <div class="puzzle-box">
+                <div id="puzzle-board"></div>
+            </div>
+
+            <div id="result-panel" class="hidden">
+                <button onclick="location.reload()" class="btn-bts text-[10px] py-2 px-10">Volver a intentar 🔄</button>
+            </div>
+
+            <p id="footer-tag" class="text-[9px] text-purple-400/40 uppercase tracking-[0.4em] font-bold">I Purple You · BTS x ARMY</p>
         </div>
-        
-        <p class="mt-8 text-[9px] text-purple-400/40 uppercase tracking-[0.4em] font-bold">I Purple You · BTS x ARMY</p>
     </div>
 
     <script>
@@ -243,11 +242,14 @@
         function checkWin() {
             if (order.every((v, i) => v === i)) {
                 const board = document.getElementById('puzzle-board');
-                board.classList.add('won'); // Elimina las líneas blancas
-                setTimeout(() => {
-                    document.getElementById('victory-overlay').classList.remove('hidden');
-                    celebrate();
-                }, 600);
+                board.classList.add('won');
+                
+                // Cambios en la interfaz al ganar
+                document.getElementById('mission-panel').classList.add('hidden');
+                document.getElementById('victory-msg').classList.remove('hidden');
+                document.getElementById('result-panel').classList.remove('hidden');
+                
+                celebrate();
             }
         }
 
