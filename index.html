@@ -12,8 +12,6 @@
             --bts-purple: #6d4aff;
             --bts-dark: #0a0518;
             --bts-vibrant: #bb86fc;
-            --bts-gold: #ffd700;
-            --bts-white: #f3f0ff;
         }
 
         body {
@@ -36,64 +34,32 @@
 
         /* Pantallas */
         .screen {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s;
-            z-index: 10;
-        }
-
-        #screen-menu {
-            background: linear-gradient(135deg, #1a0b2e 0%, #0a0518 100%);
+            position: absolute; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s; z-index: 10;
         }
 
         .hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* Botones Estilo Original */
+        /* Botones Estilo ARMY */
         .btn-bts {
             background: linear-gradient(to right, var(--bts-purple), var(--bts-vibrant));
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 9999px;
-            font-weight: bold;
-            border-bottom: 6px solid #4a2cb3;
-            transition: all 0.2s;
-            box-shadow: 0 10px 30px rgba(109, 74, 255, 0.4);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            color: white; padding: 1rem 2rem; border-radius: 9999px;
+            font-weight: bold; border-bottom: 6px solid #4a2cb3;
+            transition: all 0.2s; box-shadow: 0 10px 30px rgba(109, 74, 255, 0.4);
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .btn-bts:hover { transform: scale(1.05) translateY(-2px); }
-        .btn-bts:active { transform: translateY(3px); border-bottom-width: 2px; }
+        .btn-bts:hover { transform: scale(1.05); }
 
-        .btn-secondary {
-            background: var(--bts-purple);
-            color: white;
-            padding: 0.7rem 1.8rem;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* Puzzle Container Adaptable */
+        /* Contenedor del Puzzle */
         .puzzle-wrapper {
-            perspective: 1500px;
-            width: 85vw;
-            height: 85vw;
-            max-width: 450px;
-            max-height: 450px;
+            perspective: 1500px; width: 88vw; height: 88vw;
+            max-width: 450px; max-height: 450px;
         }
 
         .flip-card {
-            position: relative;
-            width: 100%;
-            height: 100%;
+            position: relative; width: 100%; height: 100%;
             transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
@@ -101,182 +67,136 @@
         .flip-card.is-flipped { transform: rotateY(180deg); }
 
         .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 20px;
-            overflow: hidden;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 15px; overflow: hidden;
         }
 
         .back {
-            transform: rotateY(180deg);
-            background: #fff;
-            color: var(--bts-dark);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 8px solid var(--bts-purple);
+            transform: rotateY(180deg); background: #fff; color: var(--bts-dark);
+            padding: 1.5rem; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border: 6px solid var(--bts-purple);
         }
 
         #puzzle-board {
-            display: grid;
-            gap: 1.5px;
-            background: #201540;
-            height: 100%;
-            border: 4px solid var(--bts-purple);
+            display: grid; gap: 1px; background: #201540;
+            height: 100%; border: 3px solid var(--bts-purple);
         }
 
-        .piece {
-            cursor: pointer;
-            background-repeat: no-repeat;
-            transition: all 0.2s ease;
+        .piece { cursor: pointer; background-repeat: no-repeat; transition: all 0.2s; }
+        .piece.selected { outline: 3px solid white; outline-offset: -3px; z-index: 20; transform: scale(0.95); filter: brightness(1.2); }
+        .piece.locked { cursor: default; filter: brightness(1.05); box-shadow: inset 0 0 10px rgba(109, 74, 255, 0.2); }
+
+        /* Modal Vista Previa */
+        #preview-modal {
+            position: fixed; inset: 0; background: rgba(10, 5, 24, 0.85);
+            backdrop-filter: blur(10px); z-index: 100;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .piece.selected {
-            outline: 4px solid white;
-            outline-offset: -4px;
-            z-index: 20;
-            transform: scale(0.92);
-            filter: brightness(1.2);
+        .preview-content {
+            position: relative; width: 80%; max-width: 380px;
+            border: 4px solid var(--bts-purple); border-radius: 20px;
+            box-shadow: 0 0 40px rgba(109, 74, 255, 0.6);
         }
 
-        .piece.locked { cursor: default; filter: brightness(1.05); }
-
-        /* Decoración Original */
-        .floating-emoji {
-            position: absolute;
-            animation: float 5s ease-in-out infinite;
-            z-index: 5;
-            font-size: 2.2rem;
-            pointer-events: none;
+        .close-btn {
+            position: absolute; top: -15px; right: -15px;
+            background: #f3f0ff; color: var(--bts-purple);
+            width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; border: 2px solid var(--bts-purple); cursor: pointer;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(15deg); }
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 2s infinite ease-in-out;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
+        /* Decoración */
+        .floating-emoji { position: absolute; animation: float 5s infinite ease-in-out; z-index: 5; font-size: 2rem; pointer-events: none; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="star-container" class="fixed inset-0 pointer-events-none"></div>
 
-    <div id="screen-menu" class="screen">
-        <div class="floating-emoji" style="top: 15%; left: 12%;">🎤</div>
-        <div class="floating-emoji" style="bottom: 20%; left: 18%; animation-delay: 1s;">💜</div>
-        <div class="floating-emoji" style="top: 10%; right: 15%; animation-delay: 2s;">🌟</div>
-        <div class="floating-emoji" style="bottom: 15%; right: 10%; animation-delay: 0.5s;">🎵</div>
-
-        <div class="z-20 text-center px-6">
-            <h1 class="bts-font text-5xl md:text-7xl text-white mb-2">BTS: ARMY</h1>
-            <p class="bts-font text-lg text-purple-300 mb-10 tracking-[0.3em]">MODO DESAFÍO</p>
-            
-            <div class="flex flex-col gap-4 max-w-xs mx-auto">
-                <button onclick="configGame(25)" class="btn-bts bts-font text-sm">Fácil (25 piezas)</button>
-                <button onclick="configGame(50)" class="btn-bts bts-font text-sm">Medio (50 piezas)</button>
-                <button onclick="configGame(100)" class="btn-bts bts-font text-sm">Experto (100 piezas)</button>
-            </div>
-            <p class="mt-8 text-white/50 text-xs font-bold uppercase tracking-widest">I Purple You</p>
+    <div id="preview-modal" class="hidden" onclick="togglePreview(false)">
+        <div class="preview-content" onclick="event.stopPropagation()">
+            <div class="close-btn bts-font" onclick="togglePreview(false)">X</div>
+            <img src="bts.jpg" class="w-full block rounded-[16px]">
         </div>
     </div>
 
-    <div id="screen-countdown" class="screen hidden">
-        <div id="countdown-text" class="bts-font text-9xl text-white drop-shadow-[0_0_20px_rgba(109,74,255,1)]"></div>
+    <div id="screen-menu" class="screen">
+        <div class="floating-emoji" style="top: 15%; left: 10%;">💜</div>
+        <div class="floating-emoji" style="top: 10%; right: 10%; animation-delay: 1s;">✨</div>
+        <div class="floating-emoji" style="bottom: 20%; left: 15%; animation-delay: 2s;">🎤</div>
+        
+        <div class="z-20 text-center px-4">
+            <h1 class="bts-font text-5xl md:text-7xl text-white mb-2">BTS: ARMY</h1>
+            <p class="bts-font text-sm text-purple-300 mb-12 tracking-[0.4em]">DESAFÍO DINÁMICO</p>
+            
+            <div class="flex flex-col gap-4 max-w-[260px] mx-auto">
+                <button onclick="configGame(25)" class="btn-bts bts-font text-xs">Fácil (25 piezas)</button>
+                <button onclick="configGame(49)" class="btn-bts bts-font text-xs">Medio (49 piezas)</button>
+                <button onclick="configGame(100)" class="btn-bts bts-font text-xs">Experto (100 piezas)</button>
+            </div>
+        </div>
     </div>
 
     <div id="screen-game" class="screen hidden">
-        <div class="mb-6 text-center">
-            <h2 class="bts-font text-2xl text-purple-400 mb-2">Panel de Misión</h2>
-            <div class="bg-white/5 backdrop-blur-md px-6 py-2 rounded-full border border-purple-500/30">
-                <p class="text-white text-[10px] font-bold uppercase tracking-widest">
-                    Piezas: <span id="correct-count" class="text-purple-400 text-lg">0</span> / <span id="total-pieces-label">25</span>
-                </p>
+        <div class="mb-6 flex flex-col items-center">
+            <h2 class="bts-font text-xl text-purple-400 mb-3">Misión en curso</h2>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/5 backdrop-blur-md px-5 py-2 rounded-full border border-purple-500/30">
+                    <p class="text-white text-[10px] font-bold uppercase tracking-widest">
+                        Sitio: <span id="correct-count" class="text-purple-400 text-lg">0</span> / <span id="total-label">0</span>
+                    </p>
+                </div>
+                <button onclick="togglePreview(true)" class="bg-purple-600/80 p-2.5 rounded-full hover:bg-purple-500 shadow-lg transition-all">
+                    <span class="text-xl">👁️</span>
+                </button>
             </div>
         </div>
 
         <div class="puzzle-wrapper mb-8">
             <div class="flip-card" id="main-card">
-                <div class="front">
-                    <div id="puzzle-board"></div>
-                </div>
+                <div class="front"><div id="puzzle-board"></div></div>
                 <div class="back text-center">
-                    <h3 class="bts-font text-3xl text-purple-600 mb-2">¡MISIÓN CUMPLIDA!</h3>
-                    <div class="w-32 h-32 rounded-2xl overflow-hidden border-4 border-purple-400 mb-6 mx-auto">
-                        <img id="victory-preview" src="bts.jpg" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex flex-col gap-3 w-full max-w-[200px] mx-auto">
-                        <button onclick="downloadImage()" class="btn-bts text-[10px] py-2">Guardar Tesoro 💾</button>
-                        <button onclick="location.reload()" class="btn-secondary uppercase text-[9px]">Reiniciar 🔄</button>
-                    </div>
+                    <h3 class="bts-font text-3xl text-purple-600 mb-6">¡COMPLETO!</h3>
+                    <button onclick="location.reload()" class="btn-bts text-[10px] py-2 px-8">Volver 🔄</button>
                 </div>
             </div>
         </div>
-        <p class="text-[9px] text-purple-400/40 uppercase tracking-[0.4em] font-bold">Concentración · BTS x ARMY</p>
+        <p class="text-[9px] text-purple-400/40 uppercase tracking-[0.4em] font-bold">I Purple You · BTS x ARMY</p>
     </div>
 
     <script>
-        const IMG_URL = 'bts.jpg'; 
-        let currentTotal = 25;
-        let rows, cols;
-        let order = [];
-        let selectedPiece = null;
+        const IMG_URL = 'bts.jpg';
+        let currentTotal = 25, rows, cols, order = [], selectedPiece = null;
 
         function createStars() {
             const container = document.getElementById('star-container');
-            for(let i=0; i<80; i++) {
+            for(let i=0; i<70; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                const size = Math.random() * 3;
+                const size = Math.random() * 2 + 1;
                 star.style.width = size + 'px'; star.style.height = size + 'px';
                 star.style.top = Math.random() * 100 + 'vh'; star.style.left = Math.random() * 100 + 'vw';
-                star.style.animationDelay = Math.random() * 2 + 's';
                 container.appendChild(star);
             }
         }
 
-        function configGame(num) {
-            currentTotal = num;
-            document.getElementById('total-pieces-label').innerText = num;
-            
-            // Configurar Grid
-            if(num === 50) { rows = 5; cols = 10; } // Rectangular
-            else { rows = Math.sqrt(num); cols = rows; } // Cuadrado (5x5 o 10x10)
-            
-            startCountdown();
+        function togglePreview(show) {
+            document.getElementById('preview-modal').classList.toggle('hidden', !show);
         }
 
-        function startCountdown() {
+        function configGame(num) {
+            currentTotal = num;
+            rows = Math.sqrt(num);
+            cols = rows;
+            document.getElementById('total-label').innerText = num;
             document.getElementById('screen-menu').classList.add('hidden');
-            document.getElementById('screen-countdown').classList.remove('hidden');
-            
-            let count = 3;
-            const textEl = document.getElementById('countdown-text');
-            const timer = setInterval(() => {
-                if (count > 0) {
-                    textEl.innerText = count;
-                    count--;
-                } else {
-                    clearInterval(timer);
-                    document.getElementById('screen-countdown').classList.add('hidden');
-                    document.getElementById('screen-game').classList.remove('hidden');
-                    initGame();
-                }
-            }, 800);
+            document.getElementById('screen-game').classList.remove('hidden');
+            initGame();
         }
 
         function initGame() {
@@ -300,7 +220,6 @@
                 piece.className = 'piece' + (isCorrect ? ' locked' : '');
                 piece.style.backgroundImage = `url('${IMG_URL}')`;
                 
-                // Cálculo de posición de imagen
                 const r = Math.floor(originalPos / cols);
                 const c = originalPos % cols;
                 piece.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
@@ -308,23 +227,22 @@
                 
                 piece.onclick = () => {
                     if (isCorrect || document.getElementById('main-card').classList.contains('is-flipped')) return;
-                    
                     if (!selectedPiece) {
                         selectedPiece = piece;
                         piece.classList.add('selected');
                     } else {
-                        const idx1 = parseInt(selectedPiece.dataset.actualIdx);
+                        const idx1 = parseInt(selectedPiece.dataset.idx);
                         const idx2 = currentIdx;
-                        
                         [order[idx1], order[idx2]] = [order[idx2], order[idx1]];
                         selectedPiece.classList.remove('selected');
                         selectedPiece = null;
                         renderBoard();
-                        checkWin();
+                        if (order.every((v, i) => v === i)) {
+                            setTimeout(() => document.getElementById('main-card').classList.add('is-flipped'), 500);
+                        }
                     }
                 };
-
-                piece.dataset.actualIdx = currentIdx;
+                piece.dataset.idx = currentIdx;
                 board.appendChild(piece);
             });
             document.getElementById('correct-count').innerText = correctOnes;
@@ -336,40 +254,6 @@
                 [order[i], order[j]] = [order[j], order[i]];
             }
             if(order.every((v, i) => v === i)) shuffle();
-        }
-
-        function checkWin() {
-            if (order.every((val, index) => val === index)) {
-                setTimeout(() => {
-                    document.getElementById('main-card').classList.add('is-flipped');
-                    celebrate();
-                }, 500);
-            }
-        }
-
-        function downloadImage() {
-            const link = document.createElement('a');
-            link.href = IMG_URL;
-            link.download = 'bts_army_victory.jpg';
-            link.click();
-        }
-
-        function celebrate() {
-            const icons = ['💜', '✨', '🎤', '🕺', '👑'];
-            for(let i=0; i<50; i++) {
-                const c = document.createElement('div');
-                c.className = 'fixed text-2xl z-50 pointer-events-none';
-                c.innerHTML = icons[Math.floor(Math.random() * icons.length)];
-                c.style.left = Math.random() * 100 + 'vw';
-                c.style.top = '100vh';
-                c.style.transition = `all ${Math.random() * 2 + 2}s linear`;
-                document.body.appendChild(c);
-                setTimeout(() => {
-                    c.style.top = '-10vh';
-                    c.style.transform = `rotate(${Math.random() * 360}deg)`;
-                }, 50);
-                setTimeout(() => c.remove(), 4000);
-            }
         }
 
         window.onload = createStars;
