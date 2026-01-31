@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BTS: Army Puzzle Challenge</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -29,6 +29,7 @@
             background-image: 
                 radial-gradient(circle at 20% 30%, rgba(109, 74, 255, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 80% 70%, rgba(187, 134, 252, 0.15) 0%, transparent 40%);
+            touch-action: none;
         }
 
         .bts-font { font-family: 'Fredoka One', cursive; }
@@ -46,25 +47,19 @@
             z-index: 10;
         }
 
-        /* Fondo del Menú Estilo Galaxy */
         #screen-menu {
             background: linear-gradient(135deg, #1a0b2e 0%, #0a0518 100%);
         }
 
-        .hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
+        .hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* Botón Estilo BTS */
+        /* Botones Estilo Original */
         .btn-bts {
             background: linear-gradient(to right, var(--bts-purple), var(--bts-vibrant));
             color: white;
-            padding: 1rem 3.5rem;
+            padding: 1rem 2rem;
             border-radius: 9999px;
             font-weight: bold;
-            font-size: 1.3rem;
             border-bottom: 6px solid #4a2cb3;
             transition: all 0.2s;
             box-shadow: 0 10px 30px rgba(109, 74, 255, 0.4);
@@ -73,38 +68,24 @@
             letter-spacing: 2px;
         }
 
-        .btn-bts:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 15px 35px rgba(109, 74, 255, 0.6);
-        }
+        .btn-bts:hover { transform: scale(1.05) translateY(-2px); }
+        .btn-bts:active { transform: translateY(3px); border-bottom-width: 2px; }
 
-        .btn-bts:active {
-            transform: translateY(3px);
-            border-bottom-width: 2px;
-        }
-
-        /* Mejorado para visibilidad en fondo blanco */
         .btn-secondary {
             background: var(--bts-purple);
             color: white;
             padding: 0.7rem 1.8rem;
             border-radius: 9999px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: bold;
-            border: 2px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
-            transition: opacity 0.2s;
         }
 
-        .btn-secondary:hover {
-            opacity: 0.9;
-        }
-
-        /* Puzzle Container */
+        /* Puzzle Container Adaptable */
         .puzzle-wrapper {
             perspective: 1500px;
-            width: 90vw;
-            height: 90vw;
+            width: 85vw;
+            height: 85vw;
             max-width: 450px;
             max-height: 450px;
         }
@@ -117,9 +98,7 @@
             transform-style: preserve-3d;
         }
 
-        .flip-card.is-flipped {
-            transform: rotateY(180deg);
-        }
+        .flip-card.is-flipped { transform: rotateY(180deg); }
 
         .front, .back {
             position: absolute;
@@ -140,76 +119,39 @@
             align-items: center;
             justify-content: center;
             border: 8px solid var(--bts-purple);
-            background-image: radial-gradient(var(--bts-purple) 1px, transparent 1px);
-            background-size: 30px 30px;
         }
 
-        /* Grid 5x5 */
         #puzzle-board {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 2px;
+            gap: 1.5px;
             background: #201540;
             height: 100%;
             border: 4px solid var(--bts-purple);
         }
 
         .piece {
-            background-size: 500% 500%;
             cursor: pointer;
-            border: 0.5px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-repeat: no-repeat;
+            transition: all 0.2s ease;
         }
 
         .piece.selected {
-            outline: 5px solid white;
-            outline-offset: -5px;
+            outline: 4px solid white;
+            outline-offset: -4px;
             z-index: 20;
-            transform: scale(0.9);
-            filter: brightness(1.2) contrast(1.1);
+            transform: scale(0.92);
+            filter: brightness(1.2);
         }
 
-        .piece.locked {
-            cursor: default;
-            pointer-events: none;
-            border: none;
-            filter: brightness(1.05);
-            box-shadow: inset 0 0 15px rgba(109, 74, 255, 0.3);
-        }
+        .piece.locked { cursor: default; filter: brightness(1.05); }
 
-        #countdown-text {
-            font-size: 9rem;
-            color: white;
-            text-shadow: 0 0 20px var(--bts-purple), 0 0 40px var(--bts-vibrant);
-        }
-
-        .animate-pop {
-            animation: pop 1s ease-out;
-        }
-
-        @keyframes pop {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.3); opacity: 1; }
-            100% { transform: scale(1); opacity: 0; }
-        }
-
-        .status-msg {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 10px 25px;
-            border-radius: 30px;
-            border: 1px solid rgba(109, 74, 255, 0.4);
-        }
-
-        /* Estrellas y Emojis */
+        /* Decoración Original */
         .floating-emoji {
             position: absolute;
             animation: float 5s ease-in-out infinite;
             z-index: 5;
             font-size: 2.2rem;
             pointer-events: none;
-            filter: drop-shadow(0 0 10px rgba(187, 134, 252, 0.5));
         }
 
         @keyframes float {
@@ -217,12 +159,10 @@
             50% { transform: translateY(-30px) rotate(15deg); }
         }
 
-        /* Estrellitas de fondo */
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
-            opacity: 0.5;
             animation: twinkle 2s infinite ease-in-out;
         }
 
@@ -234,46 +174,38 @@
 </head>
 <body>
 
-    <!-- FONDO DE ESTRELLAS -->
     <div id="star-container" class="fixed inset-0 pointer-events-none"></div>
 
-    <!-- MENÚ PRINCIPAL -->
     <div id="screen-menu" class="screen">
         <div class="floating-emoji" style="top: 15%; left: 12%;">🎤</div>
         <div class="floating-emoji" style="bottom: 20%; left: 18%; animation-delay: 1s;">💜</div>
         <div class="floating-emoji" style="top: 10%; right: 15%; animation-delay: 2s;">🌟</div>
         <div class="floating-emoji" style="bottom: 15%; right: 10%; animation-delay: 0.5s;">🎵</div>
-        <div class="floating-emoji" style="top: 45%; left: 5%; animation-delay: 1.5s;">🕺</div>
-        <div class="floating-emoji" style="top: 40%; right: 5%; animation-delay: 2.5s;">👑</div>
 
         <div class="z-20 text-center px-6">
-            <div class="mb-4 inline-block bg-white/10 p-4 rounded-full backdrop-blur-md mb-8">
-                <span class="text-6xl">💜</span>
-            </div>
-            <h1 class="bts-font text-5xl md:text-7xl text-white mb-2 tracking-tight">
-                BTS: ARMY
-            </h1>
-            <p class="bts-font text-xl md:text-2xl text-purple-300 mb-10 uppercase tracking-[0.4em]">Desafío Rompecabezas</p>
+            <h1 class="bts-font text-5xl md:text-7xl text-white mb-2">BTS: ARMY</h1>
+            <p class="bts-font text-lg text-purple-300 mb-10 tracking-[0.3em]">MODO DESAFÍO</p>
             
-            <button onclick="startCountdown()" class="btn-bts bts-font">
-                ¡COMENZAR!
-            </button>
-            <p class="mt-8 text-white/50 text-sm font-bold uppercase tracking-widest">I Purple You</p>
+            <div class="flex flex-col gap-4 max-w-xs mx-auto">
+                <button onclick="configGame(25)" class="btn-bts bts-font text-sm">Fácil (25 piezas)</button>
+                <button onclick="configGame(50)" class="btn-bts bts-font text-sm">Medio (50 piezas)</button>
+                <button onclick="configGame(100)" class="btn-bts bts-font text-sm">Experto (100 piezas)</button>
+            </div>
+            <p class="mt-8 text-white/50 text-xs font-bold uppercase tracking-widest">I Purple You</p>
         </div>
     </div>
 
-    <!-- CUENTA REGRESIVA Y PREVIEW -->
     <div id="screen-countdown" class="screen hidden">
-        <div id="countdown-text" class="bts-font"></div>
-        <p id="countdown-subtext" class="mt-4 text-purple-300 font-bold uppercase tracking-widest hidden">¡Prepara tu mirada, ARMY!</p>
+        <div id="countdown-text" class="bts-font text-9xl text-white drop-shadow-[0_0_20px_rgba(109,74,255,1)]"></div>
     </div>
 
-    <!-- JUEGO -->
     <div id="screen-game" class="screen hidden">
         <div class="mb-6 text-center">
-            <h2 class="bts-font text-3xl text-purple-400 mb-2 drop-shadow-md">Panel de Misión</h2>
-            <div class="status-msg inline-block">
-                <p class="text-white text-xs font-bold uppercase tracking-[0.2em]">Piezas en su sitio: <span id="correct-count" class="text-purple-400 text-xl">0</span> / 25</p>
+            <h2 class="bts-font text-2xl text-purple-400 mb-2">Panel de Misión</h2>
+            <div class="bg-white/5 backdrop-blur-md px-6 py-2 rounded-full border border-purple-500/30">
+                <p class="text-white text-[10px] font-bold uppercase tracking-widest">
+                    Piezas: <span id="correct-count" class="text-purple-400 text-lg">0</span> / <span id="total-pieces-label">25</span>
+                </p>
             </div>
         </div>
 
@@ -283,43 +215,49 @@
                     <div id="puzzle-board"></div>
                 </div>
                 <div class="back text-center">
-                    <h3 class="bts-font text-4xl text-purple-600 mb-2 uppercase">¡Misión Cumplida!</h3>
-                    <p class="text-gray-400 mb-6 font-bold uppercase text-[10px] tracking-widest">Imagen Desbloqueada con éxito</p>
-                    <div class="w-44 h-44 rounded-3xl overflow-hidden border-4 border-purple-400 mb-8 shadow-2xl">
-                        <img id="victory-preview" src="bts.jpg" class="w-full h-full object-cover" alt="BTS Preview">
+                    <h3 class="bts-font text-3xl text-purple-600 mb-2">¡MISIÓN CUMPLIDA!</h3>
+                    <div class="w-32 h-32 rounded-2xl overflow-hidden border-4 border-purple-400 mb-6 mx-auto">
+                        <img id="victory-preview" src="bts.jpg" class="w-full h-full object-cover">
                     </div>
-                    <div class="flex flex-col gap-4 w-full max-w-[240px]">
-                        <button onclick="downloadImage()" class="btn-bts text-sm py-3 px-4 border-b-4">Guardar Tesoro 💾</button>
-                        <button onclick="restartGame()" class="btn-secondary uppercase text-[10px] font-black tracking-widest">Reiniciar Misión 🔄</button>
+                    <div class="flex flex-col gap-3 w-full max-w-[200px] mx-auto">
+                        <button onclick="downloadImage()" class="btn-bts text-[10px] py-2">Guardar Tesoro 💾</button>
+                        <button onclick="location.reload()" class="btn-secondary uppercase text-[9px]">Reiniciar 🔄</button>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <p class="text-[10px] text-purple-400/40 uppercase tracking-[0.3em] font-bold">Concentración · BTS x ARMY</p>
+        <p class="text-[9px] text-purple-400/40 uppercase tracking-[0.4em] font-bold">Concentración · BTS x ARMY</p>
     </div>
 
     <script>
-        // Imagen principal: bts.jpg
         const IMG_URL = 'bts.jpg'; 
-        const SIZE = 5;
-        let order = [...Array(SIZE * SIZE).keys()];
+        let currentTotal = 25;
+        let rows, cols;
+        let order = [];
         let selectedPiece = null;
 
-        // Crear estrellas de fondo
         function createStars() {
             const container = document.getElementById('star-container');
-            for(let i=0; i<100; i++) {
+            for(let i=0; i<80; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 const size = Math.random() * 3;
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.top = Math.random() * 100 + 'vh';
-                star.style.left = Math.random() * 100 + 'vw';
+                star.style.width = size + 'px'; star.style.height = size + 'px';
+                star.style.top = Math.random() * 100 + 'vh'; star.style.left = Math.random() * 100 + 'vw';
                 star.style.animationDelay = Math.random() * 2 + 's';
                 container.appendChild(star);
             }
+        }
+
+        function configGame(num) {
+            currentTotal = num;
+            document.getElementById('total-pieces-label').innerText = num;
+            
+            // Configurar Grid
+            if(num === 50) { rows = 5; cols = 10; } // Rectangular
+            else { rows = Math.sqrt(num); cols = rows; } // Cuadrado (5x5 o 10x10)
+            
+            startCountdown();
         }
 
         function startCountdown() {
@@ -328,143 +266,107 @@
             
             let count = 3;
             const textEl = document.getElementById('countdown-text');
-            
             const timer = setInterval(() => {
                 if (count > 0) {
                     textEl.innerText = count;
-                    textEl.className = 'bts-font animate-pop';
-                    void textEl.offsetWidth; 
                     count--;
                 } else {
                     clearInterval(timer);
-                    showPreview();
+                    document.getElementById('screen-countdown').classList.add('hidden');
+                    document.getElementById('screen-game').classList.remove('hidden');
+                    initGame();
                 }
-            }, 1000);
-        }
-
-        function showPreview() {
-            const textEl = document.getElementById('countdown-text');
-            const subtext = document.getElementById('countdown-subtext');
-            textEl.classList.add('hidden');
-            subtext.classList.remove('hidden');
-            
-            const previewContainer = document.createElement('div');
-            previewContainer.id = 'temp-preview';
-            previewContainer.className = 'puzzle-wrapper mt-8 shadow-[0_0_60px_rgba(109,74,255,0.6)] rounded-3xl overflow-hidden border-4 border-white/80';
-            previewContainer.innerHTML = `<img src="${IMG_URL}" class="w-full h-full object-cover">`;
-            document.getElementById('screen-countdown').appendChild(previewContainer);
-
-            setTimeout(() => {
-                document.getElementById('screen-countdown').classList.add('hidden');
-                document.getElementById('screen-game').classList.remove('hidden');
-                if(previewContainer) previewContainer.remove();
-                initGame();
-            }, 3000);
+            }, 800);
         }
 
         function initGame() {
-            document.getElementById('main-card').classList.remove('is-flipped');
+            order = [...Array(currentTotal).keys()];
             shuffle();
+            renderBoard();
         }
 
         function renderBoard() {
             const board = document.getElementById('puzzle-board');
+            board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
             board.innerHTML = '';
-            let correctOnes = 0;
             
+            let correctOnes = 0;
             order.forEach((originalPos, currentIdx) => {
                 const piece = document.createElement('div');
                 const isCorrect = originalPos === currentIdx;
-                
-                piece.className = 'piece' + (isCorrect ? ' locked' : '');
                 if (isCorrect) correctOnes++;
-                
-                const row = Math.floor(originalPos / SIZE);
-                const col = originalPos % SIZE;
-                
+
+                piece.className = 'piece' + (isCorrect ? ' locked' : '');
                 piece.style.backgroundImage = `url('${IMG_URL}')`;
-                piece.style.backgroundPosition = `${(col * 100) / (SIZE - 1)}% ${(row * 100) / (SIZE - 1)}%`;
                 
-                piece.dataset.idx = currentIdx;
+                // Cálculo de posición de imagen
+                const r = Math.floor(originalPos / cols);
+                const c = originalPos % cols;
+                piece.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+                piece.style.backgroundPosition = `${(c * 100) / (cols - 1)}% ${(r * 100) / (rows - 1)}%`;
                 
-                if (!isCorrect) {
-                    piece.onclick = () => {
-                        if (document.getElementById('main-card').classList.contains('is-flipped')) return;
+                piece.onclick = () => {
+                    if (isCorrect || document.getElementById('main-card').classList.contains('is-flipped')) return;
+                    
+                    if (!selectedPiece) {
+                        selectedPiece = piece;
+                        piece.classList.add('selected');
+                    } else {
+                        const idx1 = parseInt(selectedPiece.dataset.actualIdx);
+                        const idx2 = currentIdx;
                         
-                        if (!selectedPiece) {
-                            selectedPiece = piece;
-                            piece.classList.add('selected');
-                        } else {
-                            const idx1 = parseInt(selectedPiece.dataset.idx);
-                            const idx2 = parseInt(piece.dataset.idx);
-                            
-                            [order[idx1], order[idx2]] = [order[idx2], order[idx1]];
-                            
-                            selectedPiece.classList.remove('selected');
-                            selectedPiece = null;
-                            renderBoard();
-                            checkWin();
-                        }
-                    };
-                }
-                
+                        [order[idx1], order[idx2]] = [order[idx2], order[idx1]];
+                        selectedPiece.classList.remove('selected');
+                        selectedPiece = null;
+                        renderBoard();
+                        checkWin();
+                    }
+                };
+
+                piece.dataset.actualIdx = currentIdx;
                 board.appendChild(piece);
             });
-
             document.getElementById('correct-count').innerText = correctOnes;
         }
 
         function shuffle() {
-            do {
-                for (let i = order.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [order[i], order[j]] = [order[j], order[i]];
-                }
-            } while (order.some((val, index) => val === index));
-            
-            renderBoard();
+            for (let i = order.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            if(order.every((v, i) => v === i)) shuffle();
         }
 
         function checkWin() {
-            const win = order.every((val, index) => val === index);
-            if (win) {
+            if (order.every((val, index) => val === index)) {
                 setTimeout(() => {
                     document.getElementById('main-card').classList.add('is-flipped');
                     celebrate();
-                }, 600);
+                }, 500);
             }
         }
 
         function downloadImage() {
             const link = document.createElement('a');
             link.href = IMG_URL;
-            link.download = 'bts_army_unlocked.jpg';
-            document.body.appendChild(link);
+            link.download = 'bts_army_victory.jpg';
             link.click();
-            document.body.removeChild(link);
-        }
-
-        function restartGame() {
-            document.getElementById('main-card').classList.remove('is-flipped');
-            setTimeout(() => {
-                shuffle();
-            }, 600);
         }
 
         function celebrate() {
-            const icons = ['💜', '🎤', '✨', '🕺', '🎵', '👑', '🌌', '⚡'];
-            for(let i=0; i<60; i++) {
+            const icons = ['💜', '✨', '🎤', '🕺', '👑'];
+            for(let i=0; i<50; i++) {
                 const c = document.createElement('div');
-                c.className = 'fixed text-3xl pointer-events-none z-50';
+                c.className = 'fixed text-2xl z-50 pointer-events-none';
                 c.innerHTML = icons[Math.floor(Math.random() * icons.length)];
                 c.style.left = Math.random() * 100 + 'vw';
                 c.style.top = '100vh';
-                c.style.filter = `drop-shadow(0 0 10px white)`;
-                c.style.transition = `all ${Math.random() * 2 + 2}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+                c.style.transition = `all ${Math.random() * 2 + 2}s linear`;
                 document.body.appendChild(c);
                 setTimeout(() => {
-                    c.style.top = '-15vh';
-                    c.style.transform = `translateX(${(Math.random()-0.5)*200}px) rotate(${Math.random()*720}deg)`;
+                    c.style.top = '-10vh';
+                    c.style.transform = `rotate(${Math.random() * 360}deg)`;
                 }, 50);
                 setTimeout(() => c.remove(), 4000);
             }
