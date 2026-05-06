@@ -189,14 +189,7 @@
                         <div id="contenedor-imagen" class="w-32 h-32 rounded-2xl border-[4px] border-neutral-700 bg-black flex items-center justify-center shadow-[0_0_25px_rgba(255,255,255,0.15)] relative overflow-hidden">
                             <div class="absolute inset-1 rounded-2xl border border-white/10 z-10 pointer-events-none"></div>
                             
-                            <div id="logo-defecto">
-                                <svg class="w-16 h-16 text-white drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
-                                    <path d="M 24,10 L 46,24 L 46,76 L 24,90 Z" />
-                                    <path d="M 76,10 L 54,24 L 54,76 L 76,90 Z" />
-                                </svg>
-                            </div>
-                            
-                            <img id="imagen-usuario" src="" class="hidden w-full h-full object-cover z-0" alt="Tu imagen">
+                            <img id="imagen-usuario" src="bts.jpg" class="w-full h-full object-cover z-0" alt="Tu imagen">
                         </div>
                         <div class="mt-4 bg-white shadow-[0_0_15px_rgba(255,255,255,0.3)] px-6 py-1.5 rounded-full border border-gray-200">
                             <p class="text-sm font-black text-black tracking-widest">ARMY</p>
@@ -244,8 +237,8 @@
         // ------------------------------------
         // VARIABLES GLOBALES Y AUTOGUARDADO
         // ------------------------------------
-        let imagenesSubidas = [];
-        let imagenPersonalizadaUrl = null;
+        let imagenesSubidas = ['bts.jpg'];
+        let imagenPersonalizadaUrl = 'bts.jpg';
         
         let gridSize = 3; // Nivel 1: 3x3, Nivel 2: 4x4, etc.
         const MAX_GRID_SIZE = 8; // Límite máximo para jugabilidad en móvil
@@ -285,6 +278,10 @@
             const galeriaGuardada = localStorage.getItem('cubieJamGaleria');
             if (galeriaGuardada) {
                 imagenesSubidas = JSON.parse(galeriaGuardada);
+                // Asegurarse de mantener la imagen base
+                if (!imagenesSubidas.includes('bts.jpg')) {
+                    imagenesSubidas.unshift('bts.jpg');
+                }
             }
 
             const guardado = localStorage.getItem('cubieJamSave');
@@ -293,19 +290,15 @@
                 gridSize = estado.gridSize || 3;
                 tableroArray = estado.tableroArray || [];
                 movimientos = estado.movimientos || 0;
-                imagenPersonalizadaUrl = estado.imagenPersonalizadaUrl || null;
+                imagenPersonalizadaUrl = estado.imagenPersonalizadaUrl || 'bts.jpg';
                 totalEstrellas = estado.totalEstrellas || 0;
                 juegoTerminado = estado.juegoTerminado || false;
                 estrellaReclamada = estado.estrellaReclamada || false;
 
                 document.getElementById('menu-estrellas').innerText = totalEstrellas;
 
-                if (imagenPersonalizadaUrl) {
-                    document.getElementById('logo-defecto').classList.add('hidden');
-                    const imgTag = document.getElementById('imagen-usuario');
-                    imgTag.src = imagenPersonalizadaUrl;
-                    imgTag.classList.remove('hidden');
-                }
+                const imgTag = document.getElementById('imagen-usuario');
+                imgTag.src = imagenPersonalizadaUrl;
                 
                 if (tableroArray.length > 0) {
                     inicializarTablero();
@@ -402,10 +395,8 @@
 
         function seleccionarImagen(base64Url) {
             imagenPersonalizadaUrl = base64Url;
-            document.getElementById('logo-defecto').classList.add('hidden');
             const imgTag = document.getElementById('imagen-usuario');
             imgTag.src = base64Url;
-            imgTag.classList.remove('hidden');
             
             gridSize = 3;
             crearTableroDesordenado();
