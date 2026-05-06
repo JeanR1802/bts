@@ -20,6 +20,14 @@
         .animar-victoria {
             animation: victoria-pop 1.8s ease-in-out forwards;
         }
+
+        /* OPTIMIZACIÓN EXTREMA PARA MÓVILES */
+        .pieza {
+            touch-action: manipulation; /* Elimina el lag de 300ms de navegadores móviles */
+            -webkit-tap-highlight-color: transparent; /* Quita el parpadeo azul en Android */
+            transform: translateZ(0); /* Fuerza aceleración por hardware (GPU) */
+            will-change: transform, filter, box-shadow; /* Avisa al navegador para optimizar la animación */
+        }
     </style>
 </head>
 <body class="bg-black overflow-hidden overscroll-none w-full h-[100dvh]">
@@ -254,6 +262,7 @@
             cargarPartida();
         };
 
+        // Guardado super rápido: Excluye la galería de imágenes para evitar lag en cada clic
         function guardarPartida() {
             const estado = {
                 gridSize,
@@ -261,7 +270,6 @@
                 movimientos,
                 imagenPersonalizadaUrl,
                 totalEstrellas,
-                imagenesSubidas,
                 juegoTerminado,
                 estrellaReclamada
             };
@@ -269,7 +277,16 @@
             actualizarTextosMenu();
         }
 
+        function guardarGaleria() {
+            localStorage.setItem('cubieJamGaleria', JSON.stringify(imagenesSubidas));
+        }
+
         function cargarPartida() {
+            const galeriaGuardada = localStorage.getItem('cubieJamGaleria');
+            if (galeriaGuardada) {
+                imagenesSubidas = JSON.parse(galeriaGuardada);
+            }
+
             const guardado = localStorage.getItem('cubieJamSave');
             if (guardado) {
                 const estado = JSON.parse(guardado);
@@ -278,7 +295,6 @@
                 movimientos = estado.movimientos || 0;
                 imagenPersonalizadaUrl = estado.imagenPersonalizadaUrl || null;
                 totalEstrellas = estado.totalEstrellas || 0;
-                imagenesSubidas = estado.imagenesSubidas || [];
                 juegoTerminado = estado.juegoTerminado || false;
                 estrellaReclamada = estado.estrellaReclamada || false;
 
@@ -291,13 +307,15 @@
                     imgTag.classList.remove('hidden');
                 }
                 
-                // Si había una partida a medias y no estaba terminada, reconstruimos el tablero
                 if (tableroArray.length > 0) {
-                    renderizarTablero();
+                    inicializarTablero();
+                } else {
+                    crearTableroDesordenado();
+                    inicializarTablero();
                 }
             } else {
-                // Si no hay partida, inicializamos un tablero base
                 crearTableroDesordenado();
+                inicializarTablero();
             }
             actualizarTextosMenu();
         }
@@ -339,7 +357,7 @@
                 if (tableroArray.length === 0 || juegoTerminado) {
                     crearTableroDesordenado();
                 }
-                renderizarTablero();
+                inicializarTablero();
                 guardarPartida();
             }
         }
@@ -354,29 +372,23 @@
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        // Crear canvas para forzar recorte cuadrado y evitar que se vea "aplastada"
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // Tamaño de salida (600x600 es buen equilibrio entre calidad y peso para localStorage)
                         const size = 600; 
                         canvas.width = size;
                         canvas.height = size;
                         
-                        // Calcular recorte centrado 1:1
                         const minDim = Math.min(img.width, img.height);
                         const startX = (img.width - minDim) / 2;
                         const startY = (img.height - minDim) / 2;
                         
-                        // Dibujar imagen recortada en el canvas
                         ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
-                        
-                        // Convertir a Base64
                         const base64Img = canvas.toDataURL('image/jpeg', 0.8);
                         
-                        // Si no está ya en la galería, la agregamos
                         if (!imagenesSubidas.includes(base64Img)) {
                             imagenesSubidas.push(base64Img);
+                            guardarGaleria(); // Guardar solo cuando subimos una foto
                         }
                         
                         seleccionarImagen(base64Img);
@@ -395,11 +407,8 @@
             imgTag.src = base64Url;
             imgTag.classList.remove('hidden');
             
-            // Reiniciar el nivel a 1 (3x3) cuando se cambia de imagen
             gridSize = 3;
             crearTableroDesordenado();
-            
-            // Forzar reinicio para que el rompecabezas tome la nueva imagen
             juegoTerminado = true; 
             cambiarPantalla('menu');
         }
@@ -423,15 +432,14 @@
         }
 
         // ------------------------------------
-        // LÓGICA DEL MINIJUEGO
+        // LÓGICA DEL MINIJUEGO: SUPER OPTIMIZADA
         // ------------------------------------
         function cambiarNivelManual(delta) {
             const nuevoNivel = gridSize + delta;
-            // Solo permitir cambios entre 3 (Nivel 1) y MAX_GRID_SIZE
             if (nuevoNivel >= 3 && nuevoNivel <= MAX_GRID_SIZE) {
                 gridSize = nuevoNivel;
                 crearTableroDesordenado();
-                renderizarTablero();
+                inicializarTablero();
                 guardarPartida();
             }
         }
@@ -440,7 +448,6 @@
             const totalPiezas = gridSize * gridSize;
             tableroArray = Array.from({length: totalPiezas}, (_, i) => i + 1);
             
-            // Mezclar asegurando que NINGUNA pieza quede en su lugar original
             let mezcladoCorrectamente = false;
             while (!mezcladoCorrectamente) {
                 for (let i = tableroArray.length - 1; i > 0; i--) {
@@ -457,7 +464,6 @@
             
             document.getElementById('contador-movimientos').innerText = movimientos;
             
-            // Resetear UI de victoria si existía
             const modal = document.getElementById('modal-victoria');
             modal.classList.add('hidden');
             document.getElementById('modal-victoria-content').classList.replace('scale-100', 'scale-95');
@@ -473,22 +479,36 @@
 
         function reiniciarNivel() {
             crearTableroDesordenado();
-            renderizarTablero();
+            inicializarTablero();
             guardarPartida();
         }
 
-        function renderizarTablero() {
+        // Se ejecuta una sola vez al cargar o reiniciar para crear los botones en el DOM
+        function inicializarTablero() {
             const contenedorTablero = document.getElementById('tablero');
             contenedorTablero.innerHTML = '';
             
-            // Ajustar columnas y filas CSS en base al gridSize actual
             contenedorTablero.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
             contenedorTablero.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
-            tableroArray.forEach((numero, index) => {
+            const totalPiezas = gridSize * gridSize;
+            for (let i = 0; i < totalPiezas; i++) {
                 const boton = document.createElement('button');
+                boton.onclick = () => manejarClicCuadro(i);
+                contenedorTablero.appendChild(boton);
+            }
+            
+            actualizarVistaTablero();
+        }
+
+        // Actualiza el aspecto de las piezas existentes sin destruir el DOM (Cero Lag)
+        function actualizarVistaTablero() {
+            const botones = document.getElementById('tablero').children;
+            if(botones.length !== tableroArray.length) return;
+
+            tableroArray.forEach((numero, index) => {
+                const boton = botones[index];
                 
-                // Cálculo matemático para fondo correcto dinámico
                 const origIndex = numero - 1;
                 const row = Math.floor(origIndex / gridSize);
                 const col = origIndex % gridSize;
@@ -496,10 +516,10 @@
                 const bgPosX = (col / (gridSize - 1)) * 100;
                 const bgPosY = (row / (gridSize - 1)) * 100;
                 
-                let clases = 'relative w-full h-full focus:outline-none transition-all duration-300 overflow-hidden ';
+                // Reducido a duration-150 para que el movimiento se sienta más instantáneo
+                let clases = 'pieza relative w-full h-full focus:outline-none transition-all duration-150 overflow-hidden ';
                 const esCorrecto = (numero === index + 1);
                 
-                // Si el juego terminó, todas las piezas parecen unidas
                 if (juegoTerminado) {
                     clases += ' z-0 pointer-events-none border-none outline-none ring-0 ';
                 } else {
@@ -514,29 +534,29 @@
 
                 boton.className = clases;
 
-                // Asignar imagen
                 if (imagenPersonalizadaUrl) {
                     boton.style.backgroundImage = `url(${imagenPersonalizadaUrl})`;
                     boton.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
                     boton.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+                    boton.innerHTML = '';
                 } else {
+                    boton.style.backgroundImage = 'none';
                     boton.classList.add('bg-neutral-800');
                     if (!juegoTerminado) {
                         boton.innerHTML = `<span class="absolute inset-0 flex items-center justify-center text-gray-500 font-black text-xl opacity-30">${numero}</span>`;
+                    } else {
+                        boton.innerHTML = '';
                     }
                 }
-
-                if (!juegoTerminado && !esCorrecto) {
-                    boton.onclick = () => manejarClicCuadro(index);
-                }
-
-                contenedorTablero.appendChild(boton);
             });
 
             verificarVictoria();
         }
 
         function manejarClicCuadro(index) {
+            // Ignorar clic si la pieza ya está en su lugar correcto (ahorra procesamiento)
+            if (juegoTerminado || tableroArray[index] === index + 1) return;
+
             if (indiceSeleccionado === null) {
                 indiceSeleccionado = index;
             } else {
@@ -550,8 +570,12 @@
                 }
                 indiceSeleccionado = null;
             }
-            renderizarTablero();
-            guardarPartida();
+            
+            // Actualización rápida de UI sin tocar el DOM
+            actualizarVistaTablero();
+            
+            // Guardado asíncrono para que no congele la animación de los cuadros al moverse
+            setTimeout(guardarPartida, 0);
         }
 
         function verificarVictoria() {
@@ -563,22 +587,18 @@
                 juegoTerminado = true;
                 guardarPartida();
                 
-                // 1. Quitar los bordes del tablero visualmente
                 const tableroHtml = document.getElementById('tablero');
                 tableroHtml.classList.remove('gap-[2px]');
                 tableroHtml.classList.add('gap-0');
                 
-                // Renderizar de nuevo para limpiar estados
-                renderizarTablero();
+                actualizarVistaTablero();
 
-                // 2. Ejecutar animación de victoria (Estrella Pop)
                 const anim = document.getElementById('animacion-victoria');
                 anim.classList.remove('hidden');
                 anim.classList.add('animar-victoria');
                 
                 lucide.createIcons();
 
-                // 3. Esperar a que pase la animación para mostrar el Modal
                 setTimeout(() => {
                     document.getElementById('resumen-movimientos').innerText = movimientos;
                     const modal = document.getElementById('modal-victoria');
@@ -588,7 +608,6 @@
                         document.getElementById('modal-victoria-content').classList.replace('scale-95', 'scale-100');
                     }, 50);
 
-                    // Botón descarga
                     const btnDescargar = document.getElementById('btn-descargar');
                     if (imagenPersonalizadaUrl) {
                         btnDescargar.classList.remove('hidden');
@@ -597,7 +616,7 @@
                         btnDescargar.classList.add('hidden');
                         btnDescargar.classList.remove('flex');
                     }
-                }, 3000); // Retraso de 3s (1.8s de la estrella + 1.2s para apreciar la imagen armada)
+                }, 3000); 
             }
         }
 
@@ -626,10 +645,9 @@
                 alert("¡Felicidades! Has llegado al tamaño máximo de cuadrícula.");
             }
             crearTableroDesordenado();
-            renderizarTablero();
+            inicializarTablero();
             guardarPartida();
             
-            // Ocultar modal para jugar
             const modal = document.getElementById('modal-victoria');
             modal.classList.add('hidden');
             document.getElementById('modal-victoria-content').classList.replace('scale-100', 'scale-95');
